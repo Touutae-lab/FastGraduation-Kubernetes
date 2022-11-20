@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: frontend
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/app-network: "true"
+        io.kompose.service: frontend
+    spec:
+      containers:
+        - args:
+            - pnpm
+            - run
+            - dev
+          env:
+            - name: NODE_ENV
+              value: development
+          image: frontend
+          name: frontend
+          ports:
+            - containerPort: 3000
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/pages
+              name: frontend-claim0
+              readOnly: true
+            - mountPath: /app/styles
+              name: frontend-claim1
+              readOnly: true
+            - mountPath: /app/public
+              name: frontend-claim2
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: frontend-claim0
+          persistentVolumeClaim:
+            claimName: frontend-claim0
+            readOnly: true
+        - name: frontend-claim1
+          persistentVolumeClaim:
+            claimName: frontend-claim1
+            readOnly: true
+        - name: frontend-claim2
+          persistentVolumeClaim:
+            claimName: frontend-claim2
+            readOnly: true
+status: {}

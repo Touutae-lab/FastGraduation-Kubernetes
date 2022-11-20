@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: supertokens
+  name: supertokens
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: supertokens
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/app-network: "true"
+        io.kompose.service: supertokens
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_CONNECTION_URI
+              value: mysql://supertokens_users:Acb3ds32Lq@db:3306/supertokens
+          image: registry.supertokens.io/supertokens/supertokens-mysql
+          livenessProbe:
+            exec:
+              command:
+                - |
+                  bash -c 'exec 3<>/dev/tcp/127.0.0.1/3567 && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:3567\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"'
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: supertokens
+          ports:
+            - containerPort: 3567
+          resources: {}
+      restartPolicy: Always
+status: {}

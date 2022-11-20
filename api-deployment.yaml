@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: api
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: api
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/app-network: "true"
+        io.kompose.service: api
+    spec:
+      containers:
+        - args:
+            - flask
+            - run
+            - --reload
+          env:
+            - name: FLASK_DEBUG
+              value: "1"
+            - name: FLASK_ENV
+              value: development
+          image: api
+          name: api
+          ports:
+            - containerPort: 5000
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/fastgrad_api
+              name: api-claim0
+              readOnly: true
+            - mountPath: /app/docs
+              name: api-claim1
+              readOnly: true
+            - mountPath: /app/html
+              name: api-claim2
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: api-claim0
+          persistentVolumeClaim:
+            claimName: api-claim0
+            readOnly: true
+        - name: api-claim1
+          persistentVolumeClaim:
+            claimName: api-claim1
+            readOnly: true
+        - name: api-claim2
+          persistentVolumeClaim:
+            claimName: api-claim2
+            readOnly: true
+status: {}
