@@ -1,1 +1,1 @@
-# FastGraduation-Kubernetes
+# Image version will push later
